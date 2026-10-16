@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R&eacute;servation CAN 2025</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{--green:#096b48;--dark:#102c25;--red:#c8373b;--cream:#f5f7f3;--border:#e1e9e3}*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--cream);color:#19362d}.page{min-height:100vh}.hero{background:linear-gradient(115deg,rgba(8,64,45,.96),rgba(10,112,74,.92)),radial-gradient(circle at 90% 20%,#e6c77e,transparent 40%);color:white;padding:65px max(24px,calc((100vw - 1120px)/2));border-bottom:6px solid var(--red)}.eyebrow{font-size:12px;letter-spacing:3px;font-weight:800;color:#d8e9bb}.hero h1{font-size:clamp(38px,6vw,70px);margin:12px 0 6px;letter-spacing:-2px}.hero p{font-size:18px;opacity:.9}.content{max-width:1120px;margin:-25px auto 45px;padding:0 20px;display:grid;grid-template-columns:1fr 1fr;gap:24px}.panel{background:white;border:1px solid var(--border);border-radius:18px;box-shadow:0 12px 32px rgba(11,57,37,.09);padding:28px;min-width:0}.booking{grid-row:span 2}.panel h2,.panel h3{margin:0 0 18px;font-size:24px}.subtitle{color:#678176;margin:-8px 0 26px;font-size:14px}.booking input,.booking select{display:block;width:100%;padding:13px 14px;margin:9px 0 20px;border:1px solid #cddbd2;border-radius:10px;background:#fbfdfb;font:inherit;color:#19362d}.booking input:focus,.booking select:focus{outline:2px solid #81c3a6;border-color:var(--green)}.booking #totalLabel{display:inline-block;background:#e6f5ed;color:var(--green);padding:12px 18px;border-radius:10px;font-size:24px;font-weight:800;margin:8px 0}.primary-btn{width:100%;padding:15px;border:0;border-radius:11px;background:var(--red);color:white;font-size:16px;font-weight:800;cursor:pointer}.primary-btn:hover{background:#a92730}.table-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th{background:#e8f3ed;color:#20523e;text-align:left}th,td{padding:11px 9px;border-bottom:1px solid #e6ece8}td button{background:#e9f2ee;border:0;border-radius:6px;padding:7px;margin:2px;cursor:pointer;color:#18583c}td button:hover{background:#d0e9dc}.stadiums p{font-size:14px;color:#60786b}.stadiums span{font-weight:800;color:var(--green)}footer{text-align:center;padding:20px;color:#73857c;font-size:12px}@media(max-width:760px){.hero{padding:44px 22px 60px}.content{grid-template-columns:1fr;margin-top:-30px}.booking{grid-row:auto}.panel{padding:22px}}
+
+</style>
+</head>
+
+<body>
+<div class="page">
+<header class="hero"><span class="eyebrow">MAROC • FOOTBALL • 2025</span><h1>🏆 CAN 2025</h1><p>Réservez vos billets et vivez la passion du football.</p></header>
+<main class="content"><section class="panel booking">
+
+<h2>Réservation de billets</h2><p class="subtitle">Choisissez votre stade et préparez votre match.</p>
+
+Nom et Pr&eacute;nom :
+<input type="text" id="nom"><br><br>
+
+Choisissez un Stade :
+<select id="stade" onchange="calculerTotal()"></select><br><br>
+
+Date du Match :
+<input type="date" id="dateMatch"><br><br>
+
+Nombre de Tickets :
+<input type="number" id="tickets" min="1" value="1" oninput="calculerTotal()"><br><br>
+
+Total &agrave; payer :
+<label id="totalLabel">0 MAD</label>
+
+<br><br>
+
+<button type="button" class="primary-btn" onclick="reserver()">R&eacute;server</button>
+
+</section><section class="panel reservations">
+
+<h3>Liste des r&eacute;servations</h3>
+
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Nom</th>
+<th>Stade</th>
+<th>Date</th>
+<th>Tickets</th>
+<th>Total</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody id="listeReservations"></tbody>
+
+</table></div>
+
+<br><br>
+
+</section><section class="panel stadiums"><h3>Résumé des stades</h3>
+
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Stade</th>
+<th>Prix</th>
+</tr>
+</thead>
+
+<tbody id="tableauStades"></tbody>
+
+</table></div>
+
+<br>
+
+<p>Nombre de stades :
+<span id="nbStades">0</span>
+</p>
+
+<p>Somme des prix :
+<span id="sommePrix">0 MAD</span>
+</p>
+
+</section></main><footer>Projet académique • Démonstration sans paiement réel</footer></div>
+<script>
+
+const stades = [
+  {"ville": "Rabat", "capacite": 53000, "prix": 180},
+  {"ville": "Casablanca", "capacite": 45000, "prix": 250},
+  {"ville": "Marrakech", "capacite": 45240, "prix": 200},
+  {"ville": "Tanger", "capacite": 65000, "prix": 150}
+];
+
+function charger() {
+  let liste = document.getElementById("stade");
+  let tableauStades = document.getElementById("tableauStades");
+  let sommePrix = 0;
+
+  liste.innerHTML = "";
+  tableauStades.innerHTML = "";
+
+  stades.forEach(function(stade) {
+    let option = document.createElement("option");
+    option.value = stade.prix;
+    option.textContent = "Stade de " + stade.ville + " - " + stade.prix + " MAD";
+    liste.appendChild(option);
+
+    let tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>Stade de ${stade.ville}</td>
+      <td>${stade.prix} MAD</td>
+    `;
+    tableauStades.appendChild(tr);
+
+    sommePrix += stade.prix;
+  });
+
+  document.getElementById("nbStades").textContent = stades.length;
+  document.getElementById("sommePrix").textContent = sommePrix + " MAD";
+
+  calculerTotal();
+}
+
+function calculerTotal() {
+  let prix = parseFloat(document.getElementById("stade").value) || 0;
+  let nbTickets = parseInt(document.getElementById("tickets").value) || 0;
+  let total = prix * nbTickets;
+
+  document.getElementById("totalLabel").textContent = total + " MAD";
+}
+
+const STORAGE_KEY = "can2025_reservations_v1";
+let reservations = [];
+
+function sauvegarderReservations() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
+  } catch (error) {
+    console.warn("Stockage indisponible :", error);
+  }
+}
+
+function chargerReservations() {
+  try {
+    const donnees = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    reservations = Array.isArray(donnees) ? donnees.filter(r =>
+      r && typeof r.nom === "string" && typeof r.stade === "string" &&
+      typeof r.date === "string" && Number.isInteger(r.tickets) &&
+      r.tickets > 0 && Number.isFinite(r.total)
+    ) : [];
+  } catch (error) {
+    reservations = [];
+    console.warn("Impossible de lire les réservations :", error);
+  }
+  afficherReservations();
+}
+
+function afficherReservations() {
+  const tbody = document.getElementById("listeReservations");
+  tbody.replaceChildren();
+  reservations.forEach((reservation, index) => {
+    const tr = document.createElement("tr");
+    [reservation.nom, reservation.stade, reservation.date,
+     String(reservation.tickets), reservation.total + " MAD"].forEach(valeur => {
+      const td = document.createElement("td");
+      td.textContent = valeur;
+      tr.appendChild(td);
+    });
+    const actions = document.createElement("td");
+    const supprimer = document.createElement("button");
+    supprimer.type = "button";
+    supprimer.textContent = "Supprimer";
+    supprimer.addEventListener("click", () => supprimerReservation(index));
+    const payer = document.createElement("button");
+    payer.type = "button";
+    payer.textContent = "Payer";
+    payer.addEventListener("click", payerReservation);
+    actions.append(supprimer, document.createTextNode(" "), payer);
+    tr.appendChild(actions);
+    tbody.appendChild(tr);
+  });
+}
+
+function reserver() {
+  const nom = document.getElementById("nom").value.trim();
+  const stade = document.getElementById("stade");
+  const stadeChoisi = stade.options[stade.selectedIndex]?.text || "";
+  const date = document.getElementById("dateMatch").value;
+  const tickets = Number(document.getElementById("tickets").value);
+  const prix = Number(stade.value);
+
+  if (!nom || !date || !Number.isInteger(tickets) || tickets < 1 || !Number.isFinite(prix)) {
+    alert("Veuillez remplir tous les champs correctement");
+    return;
+  }
+
+  reservations.push({ nom, stade: stadeChoisi, date, tickets, total: prix * tickets });
+  sauvegarderReservations();
+  afficherReservations();
+  document.getElementById("nom").value = "";
+  document.getElementById("dateMatch").value = "";
+  document.getElementById("tickets").value = "1";
+  calculerTotal();
+}
+
+function supprimerReservation(index) {
+  reservations.splice(index, 1);
+  sauvegarderReservations();
+  afficherReservations();
+}
+
+function payerReservation() {
+  alert("Démo uniquement : aucun paiement réel n’est effectué.");
+}
+
+charger();
+chargerReservations();
+
+</script>
+
+</body>
+</html>
